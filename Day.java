@@ -3,10 +3,9 @@ import java.util.*;
 /*
  * A day, each day contains a list of tasks
  */
-public class Day {
+public class Day implements Cloneable {
 
 	private ArrayList<String> tasks;
-	Iterator<String> iterString;
 	private Calendar today;
 
 	public Day(Calendar c) {
@@ -19,10 +18,16 @@ public class Day {
 	 * Setters & Getters
 	 */
 	public Calendar getToday() {
+		today.set(Calendar.HOUR_OF_DAY, 0);
+		today.set(Calendar.MINUTE, 0);
+		today.set(Calendar.SECOND, 0);
+		today.set(Calendar.MILLISECOND, 0);
 		return today;
 	}
+
 	public int getDay() {
-		return today.get(Calendar.DAY_OF_MONTH);	}
+		return today.get(Calendar.DAY_OF_MONTH);
+	}
 
 	public void setDay(int day) {
 		today.set(Calendar.DAY_OF_MONTH, day);
@@ -34,6 +39,7 @@ public class Day {
 		switch (i) {
 		case 0:
 			s = "January";
+			break;
 		case 1:
 			s = "February";
 			break;
@@ -70,7 +76,11 @@ public class Day {
 		default:
 			s = "invalid month";
 		}
-		return s;		
+		return s;
+	}
+
+	public int getMonthInt() {
+		return today.get(Calendar.MONTH);
 	}
 
 	public void setMonth(int month) {
@@ -132,30 +142,50 @@ public class Day {
 			s = "invalid day of the week";
 		}
 		return s;
-	}	
+	}
 
-		/*
-		 * Add, Remove, Edit from tasks arrayList
-		 */
-		public void addTask(String aTask) {
-			tasks.add(aTask);
+	/*
+	 * Add, Remove, Edit from tasks arrayList
+	 */
+	public void addTask(String aTask) {
+		tasks.add(aTask);
+	}
+
+	public void removeTask(String taskSelected) {
+		tasks.remove(taskSelected);
+	}
+
+	public void resetTasks() {
+		tasks = new ArrayList<>();
+	}
+
+	public void editTask(String old, String updated) {
+		// traverse arrayList of tasks and find the one that match the selected task
+		// replace old task with updated task
+		Iterator<String> iterString = getTasks();
+		int index = 0;
+		while (iterString.hasNext()) {
+			String temp = iterString.next();
+			if (temp.equals(old))
+				tasks.set(index, updated);
+			index++;
+		}
+	}
+
+	/*
+	 * @Override clone() method
+	 */
+	protected Object clone() throws CloneNotSupportedException {
+		Day cloned = (Day) super.clone();
+		cloned.tasks = new ArrayList<>();
+		Iterator<String> iterString = getTasks();
+		while (iterString.hasNext()) {
+			String temp = iterString.next();
+			cloned.tasks.add(temp);
 		}
 
-		public void removeTask(String taskSelected) {
-			tasks.remove(taskSelected);
-		}
-
-		public void editTask(String old, String updated) {
-			// traverse arrayList of tasks and find the one that match the selected task
-			// replace old task with updated task
-			iterString = getTasks();
-			int index = 0;
-			while(iterString.hasNext()) {
-				String temp = iterString.next();
-				if(temp.equals(old))
-					tasks.set(index, updated);
-				index++;
-			}
-		}
-
+		cloned.today = Calendar.getInstance();
+		cloned.today.set(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DAY_OF_MONTH));
+		return cloned;
+	}
 }
